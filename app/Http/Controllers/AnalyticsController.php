@@ -11,18 +11,19 @@ class AnalyticsController extends Controller
     public function index(Request $request)
     {
         $user = $request->user();
-        $today = Carbon::today();
-        $weekStart = Carbon::now()->startOfWeek();
-        $weekEnd = Carbon::now()->endOfWeek();
-        $monthStart = Carbon::now()->startOfMonth();
-        $monthEnd = Carbon::now()->endOfMonth();
+        $tz = 'Asia/Kabul';
+        $today = Carbon::today($tz);
+        $weekStart = Carbon::now($tz)->startOfWeek();
+        $weekEnd = Carbon::now($tz)->endOfWeek();
+        $monthStart = Carbon::now($tz)->startOfMonth();
+        $monthEnd = Carbon::now($tz)->endOfMonth();
 
         // Date range filtering
-        $dateFrom = $request->filled('date_from') 
-            ? Carbon::parse($request->date_from)->startOfDay() 
+        $dateFrom = $request->filled('date_from')
+            ? Carbon::parse($request->date_from, $tz)->startOfDay()
             : $weekStart;
-        $dateTo = $request->filled('date_to') 
-            ? Carbon::parse($request->date_to)->endOfDay() 
+        $dateTo = $request->filled('date_to')
+            ? Carbon::parse($request->date_to, $tz)->endOfDay()
             : $today;
 
         // Daily goal (8 hours per day)
@@ -53,7 +54,7 @@ class AnalyticsController extends Controller
         // This week's learning hours by skill
         $weekBySkill = $user->studySessions()
             ->join('skills', 'study_sessions.skill_id', '=', 'skills.id')
-            ->whereBetween('study_sessions.session_date', [$weekStart, Carbon::now()->endOfWeek()])
+            ->whereBetween('study_sessions.session_date', [$weekStart, $weekEnd])
             ->select('skills.name as skill_name', DB::raw('SUM(study_sessions.hours) as total_hours'))
             ->groupBy('skills.id', 'skills.name')
             ->orderBy('total_hours', 'desc')
@@ -109,47 +110,20 @@ class AnalyticsController extends Controller
         $currentDate = Carbon::parse($dateFrom);
         $endDate = Carbon::parse($dateTo);
         
-        // Limit to 30 days for chart readability
-        $daysDiff = $currentDate->diffInDays($endDate);
-        if ($daysDiff > 30) {
-            // If range is too large, show weekly aggregates
-            $tempDate = $currentDate->copy();
-            while ($tempDate->lte($endDate)) {
-                $weekStart = $tempDate->copy()->startOfWeek();
-                $weekEnd = $tempDate->copy()->endOfWeek();
-                if ($weekEnd->gt($endDate)) {
-                    $weekEnd = Carbon::parse($dateTo);
-                }
-                
-                $weekTotalHours = $user->studySessions()
-                    ->whereBetween('session_date', [$weekStart, $weekEnd])
-                    ->sum('hours');
-                
-                $dateRangeDays[] = [
-                    'date' => $weekStart->format('Y-m-d'),
-                    'day' => $weekStart->format('M j') . ' - ' . $weekEnd->format('M j'),
-                    'total_hours' => (float) $weekTotalHours,
-                    'goal_met' => $weekTotalHours >= ($dailyGoal * min(7, $weekStart->diffInDays($weekEnd) + 1)),
-                ];
-                
-                $tempDate->addWeek();
-            }
-        } else {
-            // Show daily breakdown
-            while ($currentDate->lte($endDate)) {
-                $dayTotal = $user->studySessions()
-                    ->whereDate('session_date', $currentDate)
-                    ->sum('hours');
-                
-                $dateRangeDays[] = [
-                    'date' => $currentDate->format('Y-m-d'),
-                    'day' => $currentDate->format('M j, D'),
-                    'total_hours' => (float) $dayTotal,
-                    'goal_met' => $dayTotal >= $dailyGoal,
-                ];
-                
-                $currentDate->addDay();
-            }
+        // Build daily breakdown for the selected date range (include zero-value days)
+        while ($currentDate->lte($endDate)) {
+            $dayTotal = $user->studySessions()
+                ->whereDate('session_date', $currentDate)
+                ->sum('hours');
+
+            $dateRangeDays[] = [
+                'date' => $currentDate->format('Y-m-d'),
+                'day' => $currentDate->format('M j, D'),
+                'total_hours' => (float) $dayTotal,
+                'goal_met' => $dayTotal >= $dailyGoal,
+            ];
+
+            $currentDate->addDay();
         }
 
         // Average daily hours for filtered range

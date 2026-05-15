@@ -241,7 +241,7 @@
                     </p>
                 </div>
                 <div class="p-6">
-                    <canvas id="analyticsChart" height="80"></canvas>
+                    <canvas id="analyticsChart" style="height:240px" height="240"></canvas>
                 </div>
             </div>
             @endif
@@ -272,7 +272,7 @@
                         pointBorderWidth: 2
                     }, {
                         label: 'Daily Goal (8h)',
-                        data: chartData.map(() => {{ $dailyGoal }}),
+                        data: chartData.map(() => @json($dailyGoal)),
                         borderColor: 'rgba(34, 197, 94, 0.5)',
                         borderDash: [5, 5],
                         borderWidth: 2,
@@ -313,7 +313,9 @@
                         },
                         x: {
                             ticks: {
-                                color: '#94a3b8'
+                                color: '#94a3b8',
+                                autoSkip: true,
+                                maxTicksLimit: 15
                             },
                             grid: {
                                 color: 'rgba(148, 163, 184, 0.1)'

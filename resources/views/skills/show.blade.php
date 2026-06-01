@@ -195,60 +195,62 @@
     <input type="hidden" id="monthlyLabelsJson" value='{{ $monthlyHours->keys()->toJson() }}'>
     <input type="hidden" id="monthlyDataJson" value='{{ $monthlyHours->values()->toJson() }}'>
     <script>
-        document.querySelectorAll('.progress-bar[data-progress]').forEach(function (el) {
-            var value = parseFloat(el.getAttribute('data-progress'));
-            if (!isNaN(value)) {
-                el.style.width = value + '%';
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.progress-bar[data-progress]').forEach(function (el) {
+                var value = parseFloat(el.getAttribute('data-progress'));
+                if (!isNaN(value)) {
+                    el.style.width = value + '%';
+                }
+            });
+
+            const dailyCtx = document.getElementById('dailyChart');
+            const monthlyCtx = document.getElementById('monthlyChart');
+
+            const dailyLabels = JSON.parse(document.getElementById('dailyLabelsJson').value);
+            const dailyData = JSON.parse(document.getElementById('dailyDataJson').value);
+
+            const monthlyLabels = JSON.parse(document.getElementById('monthlyLabelsJson').value);
+            const monthlyData = JSON.parse(document.getElementById('monthlyDataJson').value);
+
+            if (dailyCtx) {
+                new Chart(dailyCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: dailyLabels,
+                        datasets: [{
+                            label: 'Hours',
+                            data: dailyData,
+                            backgroundColor: '#6366f1',
+                        }]
+                    },
+                    options: {
+                        plugins: { legend: { display: false } },
+                        scales: { x: { ticks: { color: '#cbd5e1' } }, y: { ticks: { color: '#cbd5e1' } } }
+                    }
+                });
+            }
+
+            if (monthlyCtx) {
+                new Chart(monthlyCtx, {
+                    type: 'line',
+                    data: {
+                        labels: monthlyLabels,
+                        datasets: [{
+                            label: 'Hours',
+                            data: monthlyData,
+                            borderColor: '#22d3ee',
+                            backgroundColor: '#22d3ee44',
+                            tension: 0.3,
+                            fill: true,
+                        }]
+                    },
+                    options: {
+                        plugins: { legend: { display: false } },
+                        scales: { x: { ticks: { color: '#cbd5e1' } }, y: { ticks: { color: '#cbd5e1' } } }
+                    }
+                });
             }
         });
-
-        const dailyCtx = document.getElementById('dailyChart');
-        const monthlyCtx = document.getElementById('monthlyChart');
-
-        const dailyLabels = JSON.parse(document.getElementById('dailyLabelsJson').value);
-        const dailyData = JSON.parse(document.getElementById('dailyDataJson').value);
-
-        const monthlyLabels = JSON.parse(document.getElementById('monthlyLabelsJson').value);
-        const monthlyData = JSON.parse(document.getElementById('monthlyDataJson').value);
-
-        if (dailyCtx) {
-            new Chart(dailyCtx, {
-                type: 'bar',
-                data: {
-                    labels: dailyLabels,
-                    datasets: [{
-                        label: 'Hours',
-                        data: dailyData,
-                        backgroundColor: '#6366f1',
-                    }]
-                },
-                options: {
-                    plugins: { legend: { display: false } },
-                    scales: { x: { ticks: { color: '#cbd5e1' } }, y: { ticks: { color: '#cbd5e1' } } }
-                }
-            });
-        }
-
-        if (monthlyCtx) {
-            new Chart(monthlyCtx, {
-                type: 'line',
-                data: {
-                    labels: monthlyLabels,
-                    datasets: [{
-                        label: 'Hours',
-                        data: monthlyData,
-                        borderColor: '#22d3ee',
-                        backgroundColor: '#22d3ee44',
-                        tension: 0.3,
-                        fill: true,
-                    }]
-                },
-                options: {
-                    plugins: { legend: { display: false } },
-                    scales: { x: { ticks: { color: '#cbd5e1' } }, y: { ticks: { color: '#cbd5e1' } } }
-                }
-            });
-        }
     </script>
 </x-app-layout>
 

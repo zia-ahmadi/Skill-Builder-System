@@ -11,18 +11,8 @@
         <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
         <link rel="alternate icon" href="{{ asset('favicon.ico') }}">
 
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
-        <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+        @vite(['resources/css/app.css', 'resources/js/app.js'])
         <script>
-            tailwind.config = {
-                darkMode: 'class',
-                theme: {
-                    extend: {
-                        fontFamily: { sans: ['Figtree', 'ui-sans-serif', 'system-ui'] },
-                    },
-                },
-            };
             document.documentElement.classList.add('dark');
         </script>
     </head>

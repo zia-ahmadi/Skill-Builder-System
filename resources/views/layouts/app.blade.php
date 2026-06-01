@@ -11,19 +11,7 @@
         <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
         <link rel="alternate icon" href="{{ asset('favicon.ico') }}">
 
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
-        <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
-        <script>
-            tailwind.config = {
-                darkMode: 'class',
-                theme: {
-                    extend: {
-                        fontFamily: { sans: ['Figtree', 'ui-sans-serif', 'system-ui'] },
-                    },
-                },
-            };
-        </script>
+        @vite(['resources/css/app.css', 'resources/js/app.js'])
         <style>
             /* Dark Theme */
             body.theme-dark {
@@ -353,7 +341,6 @@
                 setTheme(saved);
             });
         </script>
-        <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
     </head>
     <body class="font-sans antialiased theme-dark">
         <div class="min-h-screen/ bg-gray-100/0">
@@ -381,6 +368,5 @@
                 {{ $slot }}
             </main>
         </div>
-        <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     </body>
 </html>

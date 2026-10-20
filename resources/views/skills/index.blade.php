@@ -26,13 +26,24 @@
                     </div>
                 </div>
             @else
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div data-skills-search class="space-y-6">
+                    <div>
+                        <label for="skill-search" class="block text-sm font-medium text-slate-300 mb-2">Search skills</label>
+                        <input
+                            id="skill-search"
+                            type="search"
+                            data-skills-search-input
+                            placeholder="Search by skill name or description..."
+                            class="w-full rounded-xl border border-slate-700 bg-slate-900/80 text-white placeholder-slate-500 focus:border-indigo-500 focus:ring-indigo-500 sm:max-w-lg"
+                        >
+                    </div>
+                    <div data-skill-list class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     @foreach ($skills as $skill)
                         @php
                             $remaining = max(0, $skill->goal_hours - ($skill->total_hours ?? 0));
                             $pct = $skill->goal_hours > 0 ? min(100, round((($skill->total_hours ?? 0) / $skill->goal_hours) * 100)) : 0;
                         @endphp
-                        <div class="group relative bg-gradient-to-br from-slate-900/90 to-slate-800/90 border border-slate-700/50 rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 flex flex-col backdrop-blur-sm hover:border-indigo-500/30">
+                        <div data-skill-card data-search="{{ strtolower($skill->name . ' ' . $skill->description) }}" class="group relative bg-gradient-to-br from-slate-900/90 to-slate-800/90 border border-slate-700/50 rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 flex flex-col backdrop-blur-sm hover:border-indigo-500/30">
                             <div class="relative h-48 bg-gradient-to-r from-indigo-900/60 via-slate-900/70 to-indigo-700/50 overflow-hidden">
                                 @if($skill->banner_url)
                                     <img src="{{ $skill->banner_url }}" alt="{{ $skill->name }} banner" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
@@ -111,9 +122,12 @@
                             </div>
                         </div>
                     @endforeach
+                    </div>
+                    <p data-skill-search-empty hidden class="rounded-xl border border-slate-700/50 bg-slate-900/70 p-8 text-center text-slate-400">
+                        No skills match your search. Try a different name or keyword.
+                    </p>
                 </div>
             @endif
         </div>
     </div>
 </x-app-layout>
-
